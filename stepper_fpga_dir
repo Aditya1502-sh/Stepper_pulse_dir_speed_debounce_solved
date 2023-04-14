@@ -1,0 +1,102 @@
+module bgf(
+  input clk,
+  input dir_forward,
+  input dir_reverse,
+  input inc,
+  input dec,
+  output reg pin1,
+  output reg pin2,
+  output reg led_inc,
+  output reg led_dec,
+  output square_wave,
+  output reg led_check,
+  output reg led_ch,
+  output reg led_rev
+);
+
+reg [23:0] counter = 0;
+reg toggle = 1;
+reg [23:0] store = 20000;
+reg [23:0] counter1;
+reg [23:0] counter2;
+reg [23:0] counter3;
+reg [23:0] counter4;
+//reg led;
+
+//always @(dir_forward, dir_reverse)
+//begin 
+//  
+//end
+
+always @(posedge clk)
+begin
+  counter <= counter + 2;
+   counter1 = (inc==1)? counter1 + 1 : counter1;
+	counter2 = (dec==1) ? counter2 + 1 : counter2;
+	
+  if (counter1 >= 12000000 && counter <=1201000)
+  begin
+    store = store - 4000;
+	 counter <=0;
+    led_inc = 1;
+	 led_dec = 0;
+	 counter1 = 0;
+	 if(store == 8000)
+	 begin
+	 store = 20000;
+	 end
+  end
+  else if (counter2 >= 12000000 && counter <= 12001000) begin
+    store = store + 4000;
+	 counter <=0;
+    led_dec = 1;
+	 led_inc = 0;
+	 counter2 = 0;
+	
+	 if(store == 32000)
+	 begin
+	 store = 20000;
+	 end
+  end
+  if (store == 20000) begin
+    led_check = 1;
+  end
+  else
+         if (inc ==0 && dec ==0)
+			begin
+	
+			counter <= counter +2;
+			end
+  begin
+    led_check = 0;
+  end
+  if (counter == store) begin
+    toggle <= ~toggle;
+    counter <= 0;
+  end
+  
+   counter3 = (dir_forward==1)? counter3 + 1 : counter3;
+	counter4 = (dir_reverse==1) ? counter4 + 1 : counter4;
+	
+  if (counter3 >= 12000000) begin
+    pin1 = 0;
+    pin2 = 1;
+    led_ch = 1;
+	 led_rev = 0;  
+	counter3=0;
+  end
+  else if (counter4 >= 12000000) 
+	begin
+    pin1 = 1;
+    pin2 = 0;
+    led_rev = 1;
+	 led_ch = 0;
+	 counter4 = 0;
+  end 
+  
+end
+
+assign square_wave = toggle;
+
+endmodule
+
